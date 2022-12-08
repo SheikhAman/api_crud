@@ -1,3 +1,4 @@
+import 'package:crud_paginate/view/paginate_view.dart';
 import 'package:crud_paginate/view_model/api_crud_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,11 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomePage(),
+        initialRoute: HomePage.routeName,
+        routes: {
+          HomePage.routeName: (context) => HomePage(),
+          PaginateView.routeName: (context) => PaginateView()
+        },
       ),
     );
   }

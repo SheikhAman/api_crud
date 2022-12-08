@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:crud_paginate/view/paginate_view.dart';
 import 'package:crud_paginate/view_model/api_crud_provider.dart';
 import 'package:crud_paginate/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import '../utlis/utils.dart';
 import '/base_client.dart';
 
 class HomePage extends StatefulWidget {
+  static const routeName = '/home_page';
   const HomePage({super.key});
 
   @override
@@ -68,6 +70,7 @@ class _HomePageState extends State<HomePage> {
                     Utils.snakBar('PUT API CALLED', context);
                   },
                   operationColor: Colors.orangeAccent),
+              // ignore: prefer_const_constructors
               SizedBox(
                 height: 8,
               ),
@@ -80,6 +83,25 @@ class _HomePageState extends State<HomePage> {
                     Utils.snakBar('DELETE API CALLED', context);
                   },
                   operationColor: Colors.red),
+              SizedBox(
+                height: 15,
+              ),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12), // <-- Radius
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 25),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black),
+                onPressed: () {
+                  Navigator.pushNamed(context, PaginateView.routeName);
+                },
+                child: const Text('Go to PaginateView'),
+              ),
             ],
           ),
         ),
