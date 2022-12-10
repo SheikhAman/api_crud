@@ -17,6 +17,7 @@ class _PaginateViewState extends State<PaginateView> {
   final controller = ScrollController();
   int page = 1;
   bool hasMore = true;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -31,6 +32,8 @@ class _PaginateViewState extends State<PaginateView> {
   }
 
   Future fetch() async {
+    if (isLoading) return;
+    isLoading = true;
     final response =
         await http.get(Uri.parse('https://reqres.in/api/users?page=$page'));
     if (response.statusCode == 200) {
@@ -44,8 +47,27 @@ class _PaginateViewState extends State<PaginateView> {
     if (apiList.isEmpty) {
       hasMore = false;
     }
-
+    isLoading = false;
     setState(() {});
+  }
+
+  Future refresh() async {
+    setState(() {
+      items.clear();
+
+      apiList.clear();
+      page = 1;
+      hasMore = true;
+      isLoading = false;
+    });
+    fetch();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -55,83 +77,86 @@ class _PaginateViewState extends State<PaginateView> {
       appBar: AppBar(
         title: const Text('Practice 2'),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: items.length + 1,
-        controller: controller,
-        itemBuilder: (context, index) {
-          if (index < items.length) {
-            var item = items[index];
-            return Stack(
-              children: [
-                Container(
-                  height: size.height * 0.4,
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 5,
-                    child: Image.network(
-                      item['avatar'],
-                      fit: BoxFit.cover,
+      body: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: items.length + 1,
+          controller: controller,
+          itemBuilder: (context, index) {
+            if (index < items.length) {
+              var item = items[index];
+              return Stack(
+                children: [
+                  Container(
+                    height: size.height * 0.4,
+                    width: double.infinity,
+                    child: Card(
+                      elevation: 5,
+                      child: Image.network(
+                        item['avatar'],
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 20,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              item['first_name'],
-                              style: TextStyle(
-                                fontSize: 20,
-                                backgroundColor: Colors.grey,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
+                  Positioned(
+                    bottom: 10,
+                    left: 20,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                item['first_name'],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  backgroundColor: Colors.grey,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                ),
                               ),
-                            ),
-                            Text(
-                              item['last_name'],
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                backgroundColor: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
+                              Text(
+                                item['last_name'],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  backgroundColor: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          item['email'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            backgroundColor: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
+                            ],
                           ),
-                        ),
-                      ],
+                          Text(
+                            item['email'],
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              backgroundColor: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          } else {
-            return Center(
-              child: hasMore
-                  ? CircularProgressIndicator(
-                      color: Colors.red,
-                    )
-                  : Text('No more data to load'),
-            );
-          }
-        },
+                ],
+              );
+            } else {
+              return Center(
+                child: hasMore
+                    ? CircularProgressIndicator(
+                        color: Colors.red,
+                      )
+                    : Text('No more data to load'),
+              );
+            }
+          },
+        ),
       ),
     );
   }
